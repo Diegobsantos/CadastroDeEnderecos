@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Endereços</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label, input {
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="tel"], input[type="submit"] {
+            padding: 10px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .data-display {
+            margin-top: 20px;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .action-buttons button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .action-buttons .edit {
+            background-color: #f0ad4e;
+            color: white;
+            border: none;
+        }
+        .action-buttons .delete {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+        }
+    </style>
+    <script>
+        function fetchData() {
+            fetch('get_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    let table = document.getElementById('data-table');
+                    table.innerHTML = '';
+                    if (data.length > 0) {
+                        let header = table.insertRow();
+                        header.insertCell(0).innerText = 'Nome Completo';
+                        header.insertCell(1).innerText = 'Endereço';
+                        header.insertCell(2).innerText = 'Telefone';
+                        header.insertCell(3).innerText = 'Ponto de Referência';
+                        header.insertCell(4).innerText = 'Ações';
+
+                        data.forEach((item, index) => {
+                            let row = table.insertRow();
+                            row.insertCell(0).innerText = item.full_name;
+                            row.insertCell(1).innerText = item.address;
+                            row.insertCell(2).innerText = item.phone;
+                            row.insertCell(3).innerText = item.reference_point;
+                            let actions = row.insertCell(4);
+                            actions.innerHTML = `
+                                <div class="action-buttons">
+                                    <button class="edit" onclick="editData(${index})">Editar</button>
+                                    <button class="delete" onclick="deleteData(${index})">Excluir</button>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        let row = table.insertRow();
+                        let cell = row.insertCell(0);
+                        cell.innerText = 'Nenhum dado cadastrado';
+                        cell.colSpan = 5;
+                    }
+                });
+        }
+
+        function search() {
+            let input = document.getElementById('search').value.toLowerCase();
+            let rows = document.querySelectorAll('#data-table tr:not(:first-child)');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
+            });
+        }
+
+        function deleteData(index) {
+            if (confirm('Tem certeza de que deseja excluir este registro?')) {
+                fetch('delete_data.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ index: index })
+                }).then(() => fetchData());
+            }
+        }
+
+        function editData(index) {
+            fetch('get_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    let item = data[index];
+                    document.getElementById('full_name').value = item.full_name;
+                    document.getElementById('address').value = item.address;
+                    document.getElementById('phone').value = item.phone;
+                    document.getElementById('reference_point').value = item.reference_point;
+                    document.getElementById('index').value = index;
+                });
+        }
+
+        window.onload = fetchData;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro de Endereços de Clientes</h1>
+        <form id="form" action="save.php" method="post">
+            <input type="hidden" id="index" name="index">
+            <label for="full_name">Nome Completo:</label>
+            <input type="text" id="full_name" name="full_name" required>
+
+            <label for="address">Endereço:</label>
+            <input type="text" id="address" name="address" required>
+
+            <label for="phone">Telefone:</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <label for="reference_point">Ponto de Referência:</label>
+            <input type="text" id="reference_point" name="reference_point" required>
+
+            <input type="submit" value="Cadastrar">
+        </form>
+
+        <div class="data-display">
+            <h2>Dados Cadastrados</h2>
+            <div class="search-bar">
+                <input type="text" id="search" onkeyup="search()" placeholder="Buscar...">
+            </div>
+            <table id="data-table"></table>
+        </div>
+    </div>
+</body>
+</html>
