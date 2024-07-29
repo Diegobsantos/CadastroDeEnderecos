@@ -4,7 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $address = $_POST['address'];
     $phone = $_POST['phone'];
     $referencePoint = $_POST['reference_point'];
-    $index = isset($_POST['index']) ? intval($_POST['index']) : -1;
+    $index = isset($_POST['index']) && $_POST['index'] !== '' ? intval($_POST['index']) : -1;
 
     // Verifica se o arquivo JSON já existe
     if (!file_exists('addresses.json')) {
