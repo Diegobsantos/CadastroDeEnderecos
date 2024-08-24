@@ -4,81 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Endereços</title>
+
+    <!-- Adicione o jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Adicione o jQuery Mask Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+    <!-- Script para recarregar a página a cada 2 minutos -->
+    <script>
+        setTimeout(function(){
+            location.reload();
+        }, 120000); // 120000 milissegundos = 2 minutos
+    </script>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
         }
         h1 {
             text-align: center;
+            color: #343a40;
+            margin-bottom: 30px;
+            font-size: 24px;
         }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label, input {
-            margin-bottom: 10px;
-        }
-        input[type="text"], input[type="tel"], input[type="submit"] {
-            padding: 10px;
-            font-size: 16px;
-        }
-        input[type="submit"] {
-            background-color: #4CAF50;
+        .btn-primary {
+            background-color: #007bff;
             color: white;
+            padding: 12px 30px;
+            font-size: 18px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
+            display: block;
+            margin: 0 auto 20px auto;
+            text-align: center;
+            text-decoration: none;
+            width: fit-content;
         }
-        input[type="submit"]:hover {
-            background-color: #45a049;
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
         .data-display {
-            margin-top: 20px;
+            margin-top: 40px;
         }
         .search-bar {
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .search-bar input {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 60%;
+            box-sizing: border-box;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
+            margin-top: 20px;
+            table-layout: fixed;
         }
         th, td {
-            padding: 10px;
+            padding: 15px;
             text-align: left;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        th {
+            background-color: #f1f3f5;
+            border: 1px solid #dee2e6;
+        }
+        td {
+            border: 1px solid #dee2e6;
         }
         .action-buttons {
             display: flex;
             gap: 10px;
         }
         .action-buttons button {
-            padding: 5px 10px;
+            padding: 8px 12px;
             font-size: 14px;
             cursor: pointer;
+            border-radius: 4px;
+            border: none;
         }
         .action-buttons .edit {
-            background-color: #f0ad4e;
+            background-color: #ffc107;
             color: white;
-            border: none;
         }
         .action-buttons .delete {
-            background-color: #d9534f;
+            background-color: #dc3545;
             color: white;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Estilos dos modais (janelas flutuantes) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #343a40;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-body label {
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .modal-body input[type="text"],
+        .modal-body input[type="tel"] {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
             border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        .modal-footer button:hover {
+            background-color: #218838;
         }
     </style>
+    
     <script>
+        $(document).ready(function(){
+            // Aplica a máscara no campo de telefone
+            $('.phone').mask('(00) 0 0000-0000');
+
+            // Mostrar o modal de cadastro ao clicar no botão
+            $('#show-form-btn').click(function() {
+                $('#addModal').show();
+            });
+
+            // Fechar modais
+            $('.close').click(function() {
+                $(this).closest('.modal').hide();
+            });
+        });
+
         function fetchData() {
             fetch('get_data.php')
                 .then(response => response.json())
@@ -112,6 +262,8 @@
                         let cell = row.insertCell(0);
                         cell.innerText = 'Nenhum dado cadastrado';
                         cell.colSpan = 5;
+                        cell.style.textAlign = 'center';
+                        cell.style.fontStyle = 'italic';
                     }
                 });
         }
@@ -141,11 +293,13 @@
                 .then(response => response.json())
                 .then(data => {
                     let item = data[index];
-                    document.getElementById('full_name').value = item.full_name;
-                    document.getElementById('address').value = item.address;
-                    document.getElementById('phone').value = item.phone;
-                    document.getElementById('reference_point').value = item.reference_point;
-                    document.getElementById('index').value = index;
+                    $('#editModal #full_name').val(item.full_name);
+                    $('#editModal #address').val(item.address);
+                    $('#editModal #phone').val(item.phone);
+                    $('#editModal #reference_point').val(item.reference_point);
+                    $('#editModal #index').val(index);
+                    $('.phone').mask('(00) 0 0000-0000');
+                    $('#editModal').show();  // Exibe o modal
                 });
         }
 
@@ -155,22 +309,7 @@
 <body>
     <div class="container">
         <h1>Cadastro de Endereços de Clientes</h1>
-        <form id="form" action="save.php" method="post">
-            <input type="hidden" id="index" name="index">
-            <label for="full_name">Nome Completo:</label>
-            <input type="text" id="full_name" name="full_name" required>
-
-            <label for="address">Endereço:</label>
-            <input type="text" id="address" name="address" required>
-
-            <label for="phone">Telefone:</label>
-            <input type="tel" id="phone" name="phone" required>
-
-            <label for="reference_point">Ponto de Referência:</label>
-            <input type="text" id="reference_point" name="reference_point" required>
-
-            <input type="submit" value="Cadastrar">
-        </form>
+        <button id="show-form-btn" class="btn-primary">Cadastrar Novo Cliente</button>
 
         <div class="data-display">
             <h2>Dados Cadastrados</h2>
@@ -180,5 +319,65 @@
             <table id="data-table"></table>
         </div>
     </div>
+
+    <!-- Modal para Cadastro -->
+    <div id="addModal" class="modal">
+        <div class="modal-header">
+            <h2>Cadastrar Cliente</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="form" action="save.php" method="post">
+                <input type="hidden" id="index" name="index">
+                <label for="full_name">Nome Completo:</label>
+                <input type="text" id="full_name" name="full_name" required>
+
+                <label for="address">Endereço:</label>
+                <input type="text" id="address" name="address" required>
+
+                <label for="phone">Telefone:</label>
+                <input type="tel" class="phone" id="phone" name="phone" required>
+
+                <label for="reference_point">Ponto de Referência:</label>
+                <input type="text" id="reference_point" name="reference_point" required>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Edição -->
+    <div id="editModal" class="modal">
+        <div class="modal-header">
+            <h2>Editar Cliente</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editForm" action="save.php" method="post">
+                <input type="hidden" id="index" name="index">
+                <label for="full_name">Nome Completo:</label>
+                <input type="text" id="full_name" name="full_name" required>
+
+                <label for="address">Endereço:</label>
+                <input type="text" id="address" name="address" required>
+
+                <label for="phone">Telefone:</label>
+                <input type="tel" class="phone" id="phone" name="phone" required>
+
+                <label for="reference_point">Ponto de Referência:</label>
+                <input type="text" id="reference_point" name="reference_point" required>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        &copy; Diego Barbosa v 0.01 - 24082024
+    </footer>
 </body>
 </html>
